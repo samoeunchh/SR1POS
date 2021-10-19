@@ -14,5 +14,8 @@ namespace SR1POS.Data
         {
         }
         public DbSet<Category> Category { get; set; }
+        public DbSet<Unit> Unit { get; set; }
+        public DbSet<Product> Product { get; set; }
+        public DbSet<ProductPrice> ProductPrice { get; set; }
     }
 }
