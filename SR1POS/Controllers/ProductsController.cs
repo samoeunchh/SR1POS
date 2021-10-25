@@ -25,7 +25,8 @@ namespace SR1POS.Controllers
             var applicationDbContext = _context.Product.Include(p => p.Category).Include(p => p.Unit);
             return View(await applicationDbContext.ToListAsync());
         }
-
+        public async Task<JsonResult> GetUnits()
+            => Json(await _context.Unit.ToListAsync());
         // GET: Products/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
