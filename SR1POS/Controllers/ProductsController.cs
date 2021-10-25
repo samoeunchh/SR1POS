@@ -60,11 +60,20 @@ namespace SR1POS.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductId,ProductName,Description,CategoryId,OnHand,Barcode,UnitId,Cost")] Product product)
+        public async Task<IActionResult> Create(Product product)
         {
             if (ModelState.IsValid)
             {
-                product.ProductId = Guid.NewGuid();
+                var pid = Guid.NewGuid();
+                if(product.ProductPrices != null)
+                {
+                    for(int i = 0; i < product.ProductPrices.Count; i++)
+                    {
+                        product.ProductPrices[i].ProductId = pid;
+                        product.ProductPrices[i].ProductPriceId = Guid.NewGuid();
+                    }
+                }
+                product.ProductId = pid;
                 _context.Add(product);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

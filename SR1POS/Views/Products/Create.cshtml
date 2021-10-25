@@ -9,6 +9,7 @@
 <h4>Product</h4>
 <hr />
 <div class="row">
+    @Html.AntiForgeryToken()
     <div class="col-md-4">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
@@ -45,7 +46,7 @@
                 <span asp-validation-for="Cost" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <button class="btn btn-primary">
+                <button class="btn btn-primary" id="save">
                     <i class="fa fa-save"></i> Save
                 </button>
             </div>
@@ -74,7 +75,48 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
         var options = "";
+        var ProductPrice = [];
         $(document).ready(function () {
+            $("#save").click(function () {
+                var token = $("input[name=__RequestVerificationToken]").val();
+                var i = 0;
+                $("#t1 tr").each(function () {
+                    if (i > 0) {
+                        var j = i - 1;
+                        var unit = document.getElementsByName("unit[]")[j].value;
+                        var price = document.getElementsByName("price[]")[j].value;
+                        if (price) {
+                            ProductPrice.push({UnitId:unit,Price:price});
+                        }
+                    }
+                    i++;
+                });
+                var data = {
+                    __RequestVerificationToken: token,
+                    "ProductName": $("#ProductName").val(),
+                    "Description": $("#Description").val(),
+                    "CategoryId": $("#CategoryId").val(),
+                    "OnHand": $("#OnHand").val(),
+                    "Barcode": $("#Barcode").val(),
+                    "UnitId": $("#UnitId").val(),
+                    "Cost": $("#Cost").val(),
+                    "ProductPrices": ProductPrice
+                };
+                $.ajax({
+                    method: "POST",
+                    url: "Create",
+                    type: "Html",
+                    data: data,
+                    success: function () {
+                        alert("Record was saved");
+                        window.location.href = "index";
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+                //console.log(data);
+            });
             $("#AddRow").click(function () {
                 var row = "<tr><td><select class='form-control' name='unit[]'>" + options + "</select></td>";
                 row += "<td><input class='form-control' name='price[]'/></td>";
