@@ -11,6 +11,7 @@ namespace SR1POS.Models
         public Guid SaleId { get; set; }
         [ForeignKey("Customer")]
         public Guid CustomerId { get; set; }
+        [DataType(DataType.Date)]
         public DateTime IssueDate { get; set; }
         [MaxLength(15)]
         public string InvoiceNumber { get; set; }
