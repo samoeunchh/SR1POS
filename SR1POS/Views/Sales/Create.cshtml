@@ -10,16 +10,16 @@
         @Html.AntiForgeryToken()
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="col-md-4">
-            <div class="form-group row">
+            <div class="form-group">
                 <label asp-for="CustomerId" class="control-label"></label>
                 <select asp-for="CustomerId" class="form-control" asp-items="ViewBag.CustomerId"></select>
             </div>
-            <div class="form-group row">
+            <div class="form-group">
                 <input class="form-control" id="search" placeholder="Barcode..." />
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="form-group row">
+                <div class="form-group">
                     <label asp-for="IssueDate" class="control-label"></label>
                     <input asp-for="IssueDate" class="form-control" />
                     <span asp-validation-for="IssueDate" class="text-danger"></span>
@@ -28,47 +28,53 @@
 
         </div>
     <div class="row">
-        <table class="table table-bordered" id="tsale">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Unit</th>
-                    <th>Price</th>
-                    <th>Qty</th>
-                    <th>Amount</th>
-                    <th>Discount</th>
-                    <th>Total</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-        </table>
+        <div class="col-md-12">
+            <table class="table table-bordered" id="tsale">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Unit</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                        <th>Amount</th>
+                        <th>Discount</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
     </div>
         <div class="row">
-            <div class="col-md-8"></div>
+            <div class="col-md-8">
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                </div>
+            </div>
             <div class="col-md-4">
-                <p class="text-right">
-                    <div class="form-group row">
-                        <label asp-for="Total" class="control-label"></label>
+                <div class="form-group row">
+                    <label asp-for="Total" class="col-md-3 control-label"></label>
+                    <div class="col-md-9">
                         <input asp-for="Total" class="form-control" readonly />
                         <span asp-validation-for="Total" class="text-danger"></span>
                     </div>
-                    <div class="form-group row">
-                        <label asp-for="Discount" class="control-label"></label>
-                        <input asp-for="Discount" class="form-control" />
+                </div>
+                <div class="form-group row">
+                    <label asp-for="Discount" class="col-md-3 control-label"></label>
+                    <div class="col-md-9">
+                        <input asp-for="Discount" class="form-control" value="0" />
                         <span asp-validation-for="Discount" class="text-danger"></span>
                     </div>
-                    <div class="form-group row">
-                        <label asp-for="GrandTotal" class="control-label"></label>
+                </div>
+                <div class="form-group row">
+                    <label asp-for="GrandTotal" class="col-md-3 control-label"></label>
+                    <div class="col-md-9">
                         <input asp-for="GrandTotal" class="form-control" readonly />
                         <span asp-validation-for="GrandTotal" class="text-danger"></span>
                     </div>
-                </p>
+                </div>
             </div>
-           
         </div>
-    <div class="form-group">
-        <input type="submit" value="Create" class="btn btn-primary" />
-    </div>
     <div>
         <a asp-action="Index">Back to List</a>
     </div>
@@ -76,4 +82,39 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        var total = 0;
+        var i = 0;
+        $(document).ready(function () {
+            $("#search").keypress(function (e) {
+                if (e.keyCode === 13) {
+                    $.ajax({
+                        method: "GET",
+                        url: "/api/product/" + $("#search").val(),
+                        dataType: "JSON",
+                        success: function (response) {
+                            console.log(response);
+                            var row = "<tr><td>" + response.productName + "</td>";
+                            row += "<td><select class='form-control' name='unit[]' id='unit"+ i +"'>" + options + "</select></td>";
+                            row += "<td>" + response.price + "</td>";
+                            row += "<td><input type='number' class='form-control' name='qty[]' value='1'/></td>";
+                            row += "<td>" + response.price + "</td>";
+                            row += "<td><input type='number' class='form-control' name='dis[]' value='0'/></td>";
+                            row += "<td>" + response.price + "</td>";
+                            row += "<td><button class='btn btn-danger'><i class='fa fa-trash'></i></button></td></tr>";
+                            total += response.price;
+                            $("#tsale").append(row);
+                            $("#Total").val(total);
+                            $("#GrandTotal").val(total);
+                            $("#unit" + i).val(response.unitId);
+                            i++;
+                            $("#search").val("");
+                        }, error: function (error) {
+                            console.log(error);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 }
