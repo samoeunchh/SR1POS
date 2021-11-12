@@ -27,6 +27,7 @@ namespace SR1POS.Controllers
                         where p.Barcode.Equals(code)
                         select new
                         {
+                            p.ProductId,
                             p.ProductName,
                             p.UnitId,
                             p.Cost,

@@ -94,8 +94,10 @@
                         dataType: "JSON",
                         success: function (response) {
                             console.log(response);
+                            var pid = "'" + response.productId + "'";
                             var row = "<tr><td>" + response.productName + "</td>";
-                            row += "<td><select class='form-control' name='unit[]' id='unit"+ i +"'>" + options + "</select></td>";
+                            row += '<td><select class="form-control" onChange="UnitChange(' + pid + ','+ i +');" name="unit[]" id="unit' + i + '">' +
+                                options + '</select></td>';
                             row += "<td>" + response.price + "</td>";
                             row += "<td><input type='number' class='form-control qty' name='qty[]' value='1'/></td>";
                             row += "<td>" + response.price + "</td>";
@@ -114,6 +116,7 @@
                 }
             });
         });
+        //onChange="UnitChange(' + pid + ','+ this +');"
         $(document).on("click", ".remove", function () {
             $(this).closest("tr").remove();
             Calculation();
@@ -124,6 +127,22 @@
         $(document).on("blur", ".discount", function () {
             Calculation();
         });
+        function UnitChange(pid, i) {
+           //console.log($(this).closest("tr").index());
+            var unitid = document.getElementsByName("unit[]")[i].value;
+            $.ajax({
+                method: "GET",
+                url: "/Sales/GetPriceByUnit/?pid=" + pid + "&uid=" + unitid,
+                dataType: "Json",
+                success: function (response) {
+                    console.log(response);
+                    $("#tsale > tbody  > tr:eq(" + i + ")").find("td:eq(2)").html(response.price);
+                    Calculation();
+                }, error: function (error) {
+                    console.log(error);
+                }
+            });
+        }
         function Calculation() {
             var total = 0;
             $("#tsale > tbody > tr").each(function (i) {

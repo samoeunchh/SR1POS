@@ -152,7 +152,8 @@ namespace SR1POS.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
+        public async Task<JsonResult> GetPriceByUnit(Guid pid, Guid uid)
+            => Json(await _context.ProductPrice.FirstOrDefaultAsync(x => x.ProductId.Equals(pid) && x.UnitId.Equals(uid)));
         private bool SaleExists(Guid id)
         {
             return _context.Sale.Any(e => e.SaleId == id);
