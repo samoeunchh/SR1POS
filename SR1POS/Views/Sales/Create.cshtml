@@ -42,6 +42,7 @@
                         <th>Action</th>
                     </tr>
                 </thead>
+                <tbody></tbody>
             </table>
         </div>
     </div>
@@ -83,7 +84,6 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
-        var total = 0;
         var i = 0;
         $(document).ready(function () {
             $("#search").keypress(function (e) {
@@ -97,15 +97,13 @@
                             var row = "<tr><td>" + response.productName + "</td>";
                             row += "<td><select class='form-control' name='unit[]' id='unit"+ i +"'>" + options + "</select></td>";
                             row += "<td>" + response.price + "</td>";
-                            row += "<td><input type='number' class='form-control' name='qty[]' value='1'/></td>";
+                            row += "<td><input type='number' class='form-control qty' name='qty[]' value='1'/></td>";
                             row += "<td>" + response.price + "</td>";
-                            row += "<td><input type='number' class='form-control' name='dis[]' value='0'/></td>";
+                            row += "<td><input type='number' class='form-control discount' name='dis[]' value='0'/></td>";
                             row += "<td>" + response.price + "</td>";
-                            row += "<td><button class='btn btn-danger'><i class='fa fa-trash'></i></button></td></tr>";
-                            total += response.price;
+                            row += "<td><button class='btn btn-danger remove'><i class='fa fa-trash'></i></button></td></tr>";
                             $("#tsale").append(row);
-                            $("#Total").val(total);
-                            $("#GrandTotal").val(total);
+                            Calculation();
                             $("#unit" + i).val(response.unitId);
                             i++;
                             $("#search").val("");
@@ -116,5 +114,31 @@
                 }
             });
         });
+        $(document).on("click", ".remove", function () {
+            $(this).closest("tr").remove();
+            Calculation();
+        });
+        $(document).on("blur", ".qty", function () {
+            Calculation();
+        });
+        $(document).on("blur", ".discount", function () {
+            Calculation();
+        });
+        function Calculation() {
+            var total = 0;
+            $("#tsale > tbody > tr").each(function (i) {
+                var price = $(this).find("td:eq(2)").html();
+                var qty = document.getElementsByName("qty[]")[i].value;
+                var amount = price * qty;
+                $(this).find("td:eq(4)").html(amount);
+                var discount = document.getElementsByName("dis[]")[i].value;
+                var discAmount = (amount * discount) / 100;
+                $(this).find("td:eq(6)").html(amount - discAmount);
+                total += amount - discAmount;
+            });
+            $("#Total").val(total);
+            var discounts = $("#Discount").val();
+            $("#GrandTotal").val(total - ((total * discounts)/100));
+        }
     </script>
 }
